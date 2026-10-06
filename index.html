@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Business Statistics Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF1F5; --paper:#FFFFFF; --ink:#13243A; --muted:#5A6B80; --rule:#D5DCE5;
+  --blue:#003A63; --blue-soft:#E3EDF6; --red:#B3122B; --red-soft:#FBE9EC;
+  --green:#1E6E45; --green-soft:#E5F3EB; --amber:#8A5A00; --amber-soft:#FFF3D9;
+  --focus:#2A7BD4;
+  --sans:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --serif:"Source Serif 4", Georgia, "Times New Roman", serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1726; --paper:#16233A; --ink:#E6ECF4; --muted:#9AAABF; --rule:#2C3D58;
+    --blue:#8EC1F0; --blue-soft:#1C3352; --red:#FF8A9A; --red-soft:#3A1B24;
+    --green:#7FD3A4; --green-soft:#16362A; --amber:#F2C26B; --amber-soft:#3A2E14; --focus:#8EC1F0;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1726; --paper:#16233A; --ink:#E6ECF4; --muted:#9AAABF; --rule:#2C3D58;
+  --blue:#8EC1F0; --blue-soft:#1C3352; --red:#FF8A9A; --red-soft:#3A1B24;
+  --green:#7FD3A4; --green-soft:#16362A; --amber:#F2C26B; --amber-soft:#3A2E14; --focus:#8EC1F0;
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 64px}
+
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  border-bottom:3px solid var(--blue);padding-bottom:12px;margin-bottom:20px}
+header.top h1{font-family:var(--serif);font-weight:600;font-size:1.6rem;margin:0;letter-spacing:-.01em}
+header.top .meta{color:var(--muted);font-size:.95rem}
+.timer{font-variant-numeric:tabular-nums}
+
+.layout{display:grid;grid-template-columns:220px 1fr;gap:24px;align-items:start}
+@media (max-width:760px){.layout{grid-template-columns:1fr}}
+
+aside.nav{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:14px;position:sticky;top:calc(12px + env(safe-area-inset-top,0px))}
+@media (max-width:760px){aside.nav{position:static}}
+aside.nav h2{font-size:.95rem;margin:0 0 10px;color:var(--muted);font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.grid button{aspect-ratio:1;border:1px solid var(--rule);background:var(--paper);border-radius:4px;cursor:pointer;
+  font-variant-numeric:tabular-nums;font-size:.9rem;position:relative;padding:0}
+.grid button.answered{background:var(--blue-soft);border-color:var(--blue)}
+.grid button.current{outline:2px solid var(--blue);outline-offset:1px;font-weight:700}
+.grid button.flagged::after{content:"";position:absolute;top:2px;right:2px;width:7px;height:7px;border-radius:50%;background:var(--red)}
+.grid button.ok{background:var(--green-soft);border-color:var(--green)}
+.grid button.bad{background:var(--red-soft);border-color:var(--red)}
+.grid button.part{background:var(--amber-soft);border-color:var(--amber)}
+.legend{margin-top:12px;font-size:.82rem;color:var(--muted);line-height:1.6}
+.legend span{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;border:1px solid var(--rule)}
+.navbtns{margin-top:14px;display:grid;gap:8px}
+
+.card{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 22px 18px}
+.qhead{display:flex;justify-content:space-between;gap:12px;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:10px;margin-bottom:14px}
+.qhead .num{font-weight:700}
+.qhead .pts{color:var(--muted);font-size:.9rem}
+.prompt{font-family:var(--serif);font-size:1.12rem;line-height:1.6;max-width:68ch;margin:0 0 6px}
+.hint{color:var(--muted);font-size:.92rem;margin:0 0 14px}
+.opts{display:grid;gap:8px;margin:12px 0}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--rule);border-radius:4px;cursor:pointer;max-width:72ch}
+.opt:hover{border-color:var(--blue)}
+.opt input{margin-top:5px;accent-color:var(--blue)}
+.opt.sel{border-color:var(--blue);background:var(--blue-soft)}
+.match{display:grid;gap:10px;margin:12px 0}
+.mrow{display:grid;grid-template-columns:1fr minmax(180px,240px);gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--rule);border-radius:4px}
+@media (max-width:560px){.mrow{grid-template-columns:1fr}}
+select{padding:8px;border:1px solid var(--rule);border-radius:4px;background:var(--paper);width:100%}
+input[type=text].num{padding:10px;border:1px solid var(--rule);border-radius:4px;background:var(--paper);width:160px}
+
+.extras{border-top:1px dashed var(--rule);margin-top:18px;padding-top:14px;display:grid;gap:12px}
+.conf{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.conf .lbl{font-size:.92rem;color:var(--muted);margin-right:4px}
+.pill{border:1px solid var(--rule);background:var(--paper);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:.92rem}
+.pill[aria-pressed=true]{background:var(--blue);border-color:var(--blue);color:var(--paper)}
+textarea{width:100%;min-height:64px;padding:10px;border:1px solid var(--rule);border-radius:4px;background:var(--paper);resize:vertical}
+label.small{font-size:.92rem;color:var(--muted);display:block;margin-bottom:4px}
+
+.btnrow{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.btn{border:1px solid var(--blue);background:var(--paper);color:var(--blue);border-radius:4px;padding:10px 18px;cursor:pointer;font-weight:700}
+.btn.primary{background:var(--blue);color:var(--paper)}
+.btn.ghost{border-color:var(--rule);color:var(--ink);font-weight:400}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.result-hero{display:flex;gap:28px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.score{font-family:var(--serif);font-size:3.4rem;font-weight:600;line-height:1;color:var(--blue)}
+.score small{font-size:1.1rem;color:var(--muted);font-family:var(--sans);font-weight:400;display:block;margin-top:6px}
+.savestate{font-size:.92rem;color:var(--muted)}
+table.topics{width:100%;border-collapse:collapse;margin:16px 0;font-size:.95rem}
+table.topics th,table.topics td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--rule)}
+table.topics td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar{height:8px;background:var(--rule);border-radius:4px;overflow:hidden;min-width:80px}
+.bar i{display:block;height:100%;background:var(--blue)}
+.callouts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 4px}
+@media (max-width:560px){.callouts{grid-template-columns:1fr}}
+.callout{border:1px solid var(--rule);border-radius:6px;padding:12px}
+.callout h3{margin:0 0 4px;font-size:1rem}
+.callout p{margin:0;color:var(--muted);font-size:.92rem}
+
+.review{display:grid;gap:14px;margin-top:18px}
+.ritem{border:1px solid var(--rule);border-left-width:5px;border-radius:6px;padding:14px 16px;background:var(--paper)}
+.ritem.ok{border-left-color:var(--green)} .ritem.bad{border-left-color:var(--red)} .ritem.part{border-left-color:var(--amber)}
+.ritem h4{margin:0 0 6px;font-size:.95rem;display:flex;justify-content:space-between;gap:10px}
+.ritem .rp{font-family:var(--serif);margin:0 0 10px;max-width:70ch}
+.ans{font-size:.95rem;margin:4px 0}
+.ans b{display:inline-block;min-width:110px}
+.mark-ok{color:var(--green);font-weight:700}.mark-bad{color:var(--red);font-weight:700}
+.why{background:var(--blue-soft);border-radius:4px;padding:10px 12px;margin-top:10px;font-size:.95rem;max-width:72ch}
+.tag{font-size:.82rem;border:1px solid var(--rule);border-radius:999px;padding:2px 10px;color:var(--muted);white-space:nowrap}
+.history{margin-top:28px}
+.history h2{font-family:var(--serif);font-weight:600;font-size:1.25rem;margin:0 0 8px}
+.hrow{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--rule);align-items:center;flex-wrap:wrap}
+.notice{background:var(--amber-soft);border:1px solid var(--amber);border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:.95rem}
+.intro p{max-width:68ch}
+.intro ul{max-width:68ch;padding-left:20px}
+dialog{border:1px solid var(--rule);border-radius:8px;background:var(--paper);color:var(--ink);max-width:440px;width:calc(100% - 32px)}
+dialog::backdrop{background:rgba(10,20,35,.5)}
+@media (prefers-reduced-motion: no-preference){ .card{animation:none} }
+.dtable{border-collapse:collapse;margin:8px 0 14px;font-variant-numeric:tabular-nums;font-size:.95rem}
+.dtable th,.dtable td{border:1px solid var(--rule);padding:6px 12px;text-align:right}
+.dtable th:first-child,.dtable td:first-child{text-align:left}
+.dtable th{background:var(--blue-soft)}
+.twrap{overflow-x:auto;max-width:100%}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Business Statistics Practice</h1>
+    <div class="meta"><span id="metaInfo"></span> <span class="timer" id="timer"></span></div>
+  </header>
+  <div id="app"></div>
+</div>
+
+<dialog id="confirmDlg">
+  <h3 style="margin-top:0">Submit your quiz?</h3>
+  <p id="confirmText"></p>
+  <div class="btnrow">
+    <button class="btn ghost" id="cancelSubmit">Keep working</button>
+    <button class="btn primary" id="doSubmit">Submit quiz</button>
+  </div>
+</dialog>
+
+<script>
+const C1="Ch 1: Overview of statistics", C2="Ch 2: Data collection", C3="Ch 3: Describing data visually", C4="Ch 4: Descriptive statistics", C5="Ch 5: Probability";
+const TOPIC_ORDER=[C1,C2,C3,C4,C5];
+const ST = [
+/* ---- round 1 ---- */
+{id:"s1",topic:C1,type:"match",
+ prompt:"Which logical pitfall is each person falling for?",
+ items:[
+  {t:"\"Six of my gym buddies lost weight on this diet, so it works for everyone.\"",a:"Conclusions from small samples"},
+  {t:"\"Teams with red jerseys win more often, so red jerseys must cause wins.\"",a:"Assuming a causal link"},
+  {t:"\"The same lottery numbers hit twice this month. It has to be rigged.\"",a:"Conclusions from rare events"},
+  {t:"\"Men are taller on average, so the man in this room must be taller than the woman.\"",a:"Generalization to individuals"},
+  {t:"\"Students born in March score 0.2 points higher on a 100 point exam, so we should change admissions.\"",a:"Significance versus importance"},
+  {t:"A survey asks, \"Don't you agree our service is excellent?\"",a:"Poor survey methods"}],
+ choices:["Conclusions from small samples","Conclusions from nonrandom samples","Conclusions from rare events","Poor survey methods","Assuming a causal link","Generalization to individuals","Unconscious bias","Significance versus importance"],
+ explain:"Small samples: too few cases. Causal link: two things move together, but one doesn't cause the other. Rare events: unlikely things still happen across a big population. Generalizing to individuals: an average says nothing certain about one person. Significance vs. importance: a real difference can be too small to matter. A leading question is a poor survey method."},
+{id:"s2",topic:C2,type:"match",
+ prompt:"What type of data is each variable?",
+ items:[
+  {t:"Time to run a 40 yard dash",a:"Continuous numerical"},
+  {t:"Number of text messages sent today",a:"Discrete numerical"},
+  {t:"A student's major",a:"Categorical"},
+  {t:"A customer's zip code",a:"Categorical"},
+  {t:"Gallons of gas pumped",a:"Continuous numerical"},
+  {t:"Number of rooms in a house",a:"Discrete numerical"}],
+ choices:["Categorical","Discrete numerical","Continuous numerical"],
+ explain:"Discrete = you count it in whole numbers. Continuous = you measure it, so it can take any value in between (4.37 seconds). Zip code is the trap: it's written in numbers, but it's just a label. Averaging zip codes means nothing, so it's categorical."},
+{id:"s3",topic:C3,type:"twopart",
+ prompt:"You have a data set with n = 64 observations.",
+ parts:[
+  {q:"Part A: How many bins does Sturges' Rule suggest?",options:["5","7","10","64"],answer:1},
+  {q:"Part B: If the sample doubles to n = 128, how many bins does it suggest?",options:["8","14","7","128"],answer:0}],
+ explain:"Sturges' Rule: k = 1 + 3.3 × log(n). For 64, that's about 6.96, so 7 bins. The shortcut from the slides: every time you double the sample size, add one bin. So 128 gives 8, not 14. Doubling the data does NOT double the bins."},
+{id:"s4",topic:C4,type:"twopart",
+ prompt:"Data: 2, 4, 6",
+ parts:[
+  {q:"Part A: Treating it as a sample, what is the standard deviation?",options:["2.00","1.63","4.00","2.83"],answer:0},
+  {q:"Part B: Why is the sample standard deviation larger than the population standard deviation for the same data?",options:["The sample formula divides by n minus 1 instead of n","The population formula uses more data points","The sample formula squares the deviations twice","They're always equal; any difference is rounding"],answer:0}],
+ explain:"Mean = 4. Deviations: −2, 0, 2. Squared: 4, 0, 4, sum = 8. Sample: 8 ÷ (3 − 1) = 4, √4 = 2.00. Population: 8 ÷ 3 = 2.67, √2.67 = 1.63. Dividing by a smaller number gives a bigger result, so the sample version is always a bit larger."},
+{id:"s5",topic:C5,type:"match",
+ prompt:"Which kind of probability is each one?",
+ items:[
+  {t:"The marketing VP says there's a 70% chance the new product launch succeeds",a:"Subjective"},
+  {t:"The probability of drawing a heart from a full deck is 1/4",a:"Classical"},
+  {t:"Based on 10 years of records, 3% of January flights from DCA are canceled",a:"Empirical"},
+  {t:"The probability of rolling a sum of 7 with two dice is 1/6",a:"Classical"},
+  {t:"An analyst estimates a 40% chance the Fed cuts rates next month",a:"Subjective"},
+  {t:"A company interviewed 280 applicants and hired 70, so P(hired) = .25",a:"Empirical"}],
+ choices:["Empirical","Classical","Subjective"],
+ explain:"Empirical = counted from data you observed. Classical = worked out by logic before anything happens (cards, dice, coins). Subjective = someone's informed judgment, used when there's no repeatable experiment, like a one time merger or a Fed decision."},
+/* ---- round 2 ---- */
+{id:"s6",topic:C1,type:"twopart",
+ prompt:"A bank checks 200 of its 50,000 invoices, finds 6% were paid incorrectly, and concludes about 6% of ALL its invoices have the problem.",
+ parts:[
+  {q:"Part A: Is this descriptive or inferential statistics?",options:["Inferential","Descriptive"],answer:0},
+  {q:"Part B: Why?",options:["It uses a sample to draw a conclusion about the whole population","It reports a percentage, and percentages are descriptive statistics","It summarizes invoice records, which are historical data","It was calculated with software instead of by hand"],answer:0}],
+ explain:"Descriptive statistics summarize the data you have. Inferential statistics generalize from a sample to a population. Reporting 6% of the 200 is descriptive. Jumping to all 50,000 is inference. Using a percentage doesn't make something descriptive."},
+{id:"s7",topic:C2,type:"match",
+ prompt:"Is each variable time series or cross sectional data?",
+ items:[
+  {t:"Scores of 50 students on one midterm",a:"Cross sectional"},
+  {t:"Your scores on 10 weekly quizzes",a:"Time series"},
+  {t:"Apple's revenue each quarter for 5 years",a:"Time series"},
+  {t:"Rent for 30 apartments near campus this month",a:"Cross sectional"},
+  {t:"A stock's closing price every day last month",a:"Time series"}],
+ choices:["Time series","Cross sectional"],
+ explain:"Time series = one thing tracked over equally spaced points in time. Cross sectional = many different units measured at the same point in time. Quick test: does the time change, or do the units change?"},
+{id:"s8",topic:C3,type:"twopart",
+ prompt:"Your data range from 7 to 59, and you want 6 bins.",
+ parts:[
+  {q:"Part A: What is the raw bin width?",options:["8.67","9.83","52","6"],answer:0},
+  {q:"Part B: Which \"nice\" bin width should you use?",options:["10","8","5","52"],answer:0}],
+ explain:"Bin width = (largest − smallest) ÷ number of bins = (59 − 7) ÷ 6 = 8.67. Always round UP to a nice number. Rounding down to 8 fails: 6 bins × 8 = 48, which doesn't cover the 52 point range. With 10, bins of 0, 10, 20, ... 60 cover everything."},
+{id:"s9",topic:C4,type:"twopart",
+ prompt:"Parking tickets for 10 students: 0, 0, 0, 1, 1, 2, 2, 3, 4, 17. The mean is 3.0, the median is 1.5, and the mode is 0.",
+ parts:[
+  {q:"Part A: Which measure best describes a typical student?",options:["Median","Mean","Midrange"],answer:0},
+  {q:"Part B: Why?",options:["The 17 pulls the mean up, while the median isn't affected by extreme values","The mean uses every data point, so it's always the most accurate center","The midrange balances the lowest and highest values evenly","The median is always the best measure for any data set"],answer:0}],
+ explain:"Nine of ten students have 4 or fewer tickets, yet the mean says 3 because one student has 17. The median ignores how extreme the 17 is, so it stays at a typical value. The midrange is the worst choice here: (0 + 17) ÷ 2 = 8.5, driven entirely by the extremes."},
+{id:"s10",topic:C5,type:"twopart",
+ prompt:"You draw one card from a standard 52 card deck.",
+ parts:[
+  {q:"Part A: What is P(King or Heart)?",options:[".3077",".3269",".0192",".2500"],answer:0},
+  {q:"Part B: Why do you subtract something in the formula?",options:["The King of Hearts is in both groups, so it would be counted twice","Kings and hearts are mutually exclusive, so you remove the overlap","Probabilities over .30 must be reduced to stay below 1","You always subtract the smaller probability from the larger one"],answer:0}],
+ explain:"General law of addition: P(K or H) = P(K) + P(H) − P(K and H) = 4/52 + 13/52 − 1/52 = 16/52 = .3077. If you forget to subtract, you get 17/52 = .3269. Option B in Part B is backwards: if the events were mutually exclusive, there'd be no overlap to subtract."},
+/* ---- round 3 ---- */
+{id:"s11",topic:C1,type:"match",
+ prompt:"Match each business question to the type of analytics.",
+ items:[
+  {t:"A store charts last year's sales by month to spot trends",a:"Descriptive"},
+  {t:"A streaming service forecasts which subscribers will cancel next month",a:"Predictive"},
+  {t:"An airline decides how to set prices to maximize revenue with a fixed number of seats",a:"Prescriptive"},
+  {t:"A bank reviews last quarter's loan defaults by region",a:"Descriptive"}],
+ choices:["Descriptive","Predictive","Prescriptive"],
+ explain:"Descriptive = what happened? Predictive = what's likely to happen next? Prescriptive = what action should we take to reach our goals within real constraints?"},
+{id:"s12",topic:C2,type:"match",
+ prompt:"What level of measurement is each variable?",
+ items:[
+  {t:"Points Howard basketball scores in a game",a:"Ratio"},
+  {t:"Class year (freshman, sophomore, junior, senior)",a:"Ordinal"},
+  {t:"A player's jersey number",a:"Nominal"},
+  {t:"Temperature on game day in Fahrenheit",a:"Interval"},
+  {t:"Rate the dorm food from 1 (Very Poor) to 5 (Very Good)",a:"Interval"},
+  {t:"Customer rating: poor, fair, good, excellent",a:"Ordinal"}],
+ choices:["Nominal","Ordinal","Interval","Ratio"],
+ explain:"Nominal = labels only (jersey 23 isn't more than jersey 10). Ordinal = ranked, but gaps aren't meaningful. Interval = gaps are meaningful, but zero is arbitrary (0°F isn't \"no temperature\"). Ratio = meaningful zero (0 points means no points). The textbook treats a numbered Likert scale like the 1 to 5 food rating as interval. Word ratings with no numbers stay ordinal."},
+{id:"s13",topic:C3,type:"match",
+ prompt:"Describe the shape of each distribution.",
+ items:[
+  {t:"Most values are low, with a long tail stretching to the right",a:"Right skewed"},
+  {t:"CEO pay: most under $20 million, a couple near $190 million",a:"Right skewed"},
+  {t:"An easy exam: most scored 85 to 100, a few scored 20 to 40",a:"Left skewed"},
+  {t:"Both tails are about the same length",a:"Symmetric"}],
+ choices:["Left skewed","Right skewed","Symmetric"],
+ explain:"Skew is named after the direction of the LONG TAIL, not where most data sits. On the easy exam, most scores are high on the right, but the tail of low scores stretches left, so it's left skewed."},
+{id:"s14",topic:C4,type:"twopart",
+ prompt:"Average monthly rent near campus is $1,450 with a standard deviation of $250. Your rent is $2,100.",
+ parts:[
+  {q:"Part A: What is your z score?",options:["2.6","0.26","6.5","2.0"],answer:0},
+  {q:"Part B: How would you classify your rent?",options:["Unusual, but not an outlier","An outlier","Typical"],answer:0}],
+ explain:"z = (x − mean) ÷ SD = (2,100 − 1,450) ÷ 250 = 2.6. Beyond 2 standard deviations is unusual, and beyond 3 is an outlier, so 2.6 is unusual. To be an outlier, rent would need to reach 1,450 + 3 × 250 = $2,200."},
+{id:"s15",topic:C5,type:"match",
+ prompt:"Are these characteristics of a student mutually exclusive?",
+ items:[
+  {t:"A = works 20+ hours a week, B = finance major",a:"Not mutually exclusive"},
+  {t:"A = born in Washington DC, B = born in California",a:"Mutually exclusive"},
+  {t:"A = owns an iPhone, B = owns an Android",a:"Not mutually exclusive"},
+  {t:"A = currently a freshman, B = currently a senior",a:"Mutually exclusive"},
+  {t:"A = under 21, B = over 65",a:"Mutually exclusive"}],
+ choices:["Mutually exclusive","Not mutually exclusive"],
+ explain:"Mutually exclusive means both can't happen at once. You can only be born in one place or be in one class year at a time. But someone can own two phones, or work and major in finance at the same time."},
+/* ---- round 4 ---- */
+{id:"s16",topic:C1,type:"mc",
+ prompt:"A statistic (singular) is:",
+ options:["A single number that summarizes a sample, like the average GPA of 50 sampled students","The science of collecting, organizing, analyzing, and presenting data","A complete list of every student's GPA at the university","The method used to choose which students go in a sample"],answer:0,
+ explain:"Statistics (plural) is the whole science. A statistic (singular) is one number, like a mean or proportion, calculated from a sample."},
+{id:"s17",topic:C2,type:"twopart",
+ prompt:"You want to know the model year of the car each professor you're taking this semester drives.",
+ parts:[
+  {q:"Part A: Sample or census?",options:["Census","Sample"],answer:0},
+  {q:"Part B: Why?",options:["The population is small, so checking everyone is quick and cheap","A census is always more accurate, so you should always use one","Measuring would destroy the items, so you have to check them all","The population is effectively infinite, so you must look at every case"],answer:0}],
+ explain:"With maybe five professors, asking all of them costs almost nothing. That's the \"small population\" reason for a census. For every student at the university, you'd sample instead because of cost and time."},
+{id:"s18",topic:C3,type:"match",
+ prompt:"Which chart fits each job best?",
+ items:[
+  {t:"Show a stock's price over 5 years",a:"Line chart"},
+  {t:"Show the market share of 4 phone brands that add to 100%",a:"Pie chart"},
+  {t:"Show which defect types cause the most problems, sorted largest to smallest",a:"Pareto chart"},
+  {t:"Show the relationship between price and units sold",a:"Scatter plot"},
+  {t:"Show how 200 exam scores are distributed",a:"Histogram"},
+  {t:"Plot cumulative frequencies to find percentiles",a:"Ogive"}],
+ choices:["Line chart","Pie chart","Pareto chart","Scatter plot","Histogram","Ogive","Stacked column chart"],
+ explain:"Line = time series. Pie = parts of a whole, only a few slices. Pareto = defects in descending order to find the \"significant few.\" Scatter = two numerical variables together. Histogram = distribution of one variable. Ogive = cumulative frequency line."},
+{id:"s19",topic:C4,type:"twopart",
+ prompt:"Exam scores in a class of 300 students.",
+ parts:[
+  {q:"Part A: By Chebyshev's Theorem, at least how many students score within μ ± 2σ?",options:["225","286","200","150"],answer:0},
+  {q:"Part B: By the Empirical Rule, about how many score within μ ± 2σ?",options:["286","225","204","300"],answer:0}],
+ explain:"Chebyshev: at least 1 − 1/k² = 1 − 1/4 = 75%, so .75 × 300 = 225. It works for ANY distribution, so it's a conservative minimum. Empirical Rule: about 95.44% within 2σ, so .9544 × 300 ≈ 286. It only applies if the data are normal (bell shaped)."},
+{id:"s20",topic:C5,type:"match",
+ prompt:"Which pairs of events are independent?",
+ items:[
+  {t:"P(A) = .30, P(B) = .50, P(A ∩ B) = .15",a:"Independent"},
+  {t:"P(A) = .40, P(B) = .50, P(A ∩ B) = .30",a:"Not independent"},
+  {t:"P(A) = .80, P(B) = .25, P(A ∩ B) = .20",a:"Independent"},
+  {t:"P(A) = .70, P(B) = .20, P(A ∩ B) = .10",a:"Not independent"}],
+ choices:["Independent","Not independent"],
+ explain:"Test: multiply P(A) × P(B). If it equals P(A ∩ B), they're independent. .30 × .50 = .15 ✓. .40 × .50 = .20, not .30. .80 × .25 = .20 ✓. .70 × .20 = .14, not .10."},
+/* ---- round 5 ---- */
+{id:"s21",topic:C1,type:"mc",
+ prompt:"A hospital administrator wants to improve how often surgery rooms are being used. Which is the best use of statistics?",
+ options:["Find the busiest times of day and how long each surgery type takes, then spread scheduling out","Ask the most senior surgeon what he thinks the schedule should be","Count the total number of surgeries since the hospital opened","Buy the newest scheduling software and use its default settings"],answer:0,
+ explain:"Statistics turns data into a decision: measure when rooms are busy and how long procedures take, then use that to schedule better. One opinion or a single lifetime total doesn't reveal the pattern."},
+{id:"s22",topic:C2,type:"match",
+ prompt:"You want to know the ages of people who saw the new Marvel movie. What kind of sample is each?",
+ items:[
+  {t:"Survey the first 20 people to walk out of the theater",a:"Convenience sample"},
+  {t:"Survey every 10th person to walk out",a:"Systematic sample"},
+  {t:"Survey everyone who looks under 12",a:"Judgment sample"},
+  {t:"Randomly pick 5 zip codes and survey every household in them",a:"Cluster sample"},
+  {t:"Split moviegoers by age group, then randomly survey 25 from each group",a:"Stratified sample"},
+  {t:"Use a random number generator to pick 100 names from the full ticket list",a:"Simple random sample"}],
+ choices:["Simple random sample","Systematic sample","Stratified sample","Cluster sample","Judgment sample","Convenience sample","Focus group"],
+ explain:"Convenience = whoever is easy to reach. Systematic = every kth item. Judgment = the sampler picks who seems right. Cluster = randomly pick geographic areas. Stratified = split into groups first, then sample randomly within each. Stratified vs. cluster: stratified samples from EVERY group; cluster picks only SOME areas."},
+{id:"s23",topic:C3,type:"match",
+ prompt:"Which deceptive graph error is each one?",
+ items:[
+  {t:"Profit bars start at $9.5 million instead of $0, so a 2% gain looks huge",a:"Nonzero origin"},
+  {t:"Coins pictured as bars get wider as they get taller",a:"Area trick"},
+  {t:"A chart is stretched 4 times wider than it is tall",a:"Elastic graph proportions"},
+  {t:"The source line just says \"Government data\"",a:"Vague sources"},
+  {t:"The last two years are projections, but they're drawn exactly like real data",a:"Estimated data"}],
+ choices:["Nonzero origin","Elastic graph proportions","Area trick","Vague sources","Estimated data","Gratuitous effects"],
+ explain:"Nonzero origin exaggerates changes. The area trick widens shapes as they grow, so area overstates the real proportion. Keep the aspect ratio under 2.00. Cite specific sources. Label estimated points so readers know they aren't actual data."},
+{id:"s24",topic:C4,type:"twopart",
+ prompt:"Two stocks closed for 50 days. Stock X has a standard deviation of 5, stock Y has a standard deviation of 8, and their covariance is −30.",
+ parts:[
+  {q:"Part A: What is the correlation coefficient r?",options:["−0.75","0.75","−6.00","−0.12"],answer:0},
+  {q:"Part B: How would you describe the relationship?",options:["A fairly strong negative linear relationship","A strong positive relationship","No relationship, because covariance can't be interpreted","A perfect negative relationship"],answer:0}],
+ explain:"r = covariance ÷ (sx × sy) = −30 ÷ (5 × 8) = −0.75. r always falls between −1 and +1. −0.75 is fairly close to −1, so it's a fairly strong negative relationship: when one stock goes up, the other tends to go down."},
+{id:"s25",topic:C5,type:"twopart",
+ prompt:"A survey of 200 students on their preferred drink:",
+ table:{head:["","Coffee","Tea","Neither","Total"],rows:[["Freshman","30","20","30","80"],["Senior","60","40","20","120"],["Total","90","60","50","200"]]},
+ parts:[
+  {q:"Part A: What is P(Coffee | Senior), the probability a senior prefers coffee?",options:[".50",".30",".667",".45"],answer:0},
+  {q:"Part B: What is P(Senior and Coffee)?",options:[".30",".50",".667",".60"],answer:0}],
+ explain:"Conditional (given Senior): restrict to the senior row only, so 60 ÷ 120 = .50. Joint (Senior AND Coffee): use the whole table, so 60 ÷ 200 = .30. The .667 trap is 60 ÷ 90, which flips the condition to P(Senior | Coffee). The word \"given\" tells you which total to divide by."},
+/* ---- round 6 ---- */
+{id:"s26",topic:C1,type:"mc",
+ prompt:"Which is NOT an ethical standard for a data analyst?",
+ options:["Drop data points that don't support the result your manager expects","Maintain data integrity","Protect confidential information","Report procedures faithfully"],answer:0,
+ explain:"Dropping inconvenient data breaks data integrity, which is the opposite of an ethical standard. The others (follow accepted procedures, keep data accurate, protect confidentiality, report faithfully, cite sources) are on the list."},
+{id:"s27",topic:C2,type:"match",
+ prompt:"Which source of error or bias is each one?",
+ items:[
+  {t:"Only 15% of mailed surveys come back, and the people who replied were much happier than those who didn't",a:"Nonresponse bias"},
+  {t:"An online poll anyone can choose to vote in draws mostly people with strong opinions",a:"Selection bias"},
+  {t:"Students underreport how many hours they spend on social media",a:"Response error"},
+  {t:"A phone survey uses only landline numbers, missing everyone with just a cell phone",a:"Coverage error"},
+  {t:"A survey asks \"Do you exercise regularly?\" without defining regularly",a:"Measurement error"},
+  {t:"Employees give more polite answers because the interviewer is their boss",a:"Interviewer error"},
+  {t:"Two random samples of 100 give slightly different averages",a:"Sampling error"}],
+ choices:["Nonresponse bias","Selection bias","Response error","Coverage error","Measurement error","Interviewer error","Sampling error"],
+ explain:"Nonresponse = people who don't answer differ from those who do. Selection = people choose themselves into the sample. Response = people give false info. Coverage = the list you sample from is wrong. Measurement = unclear wording. Interviewer = the asker influences answers. Sampling error = random and unavoidable."},
+{id:"s28",topic:C3,type:"twopart",
+ prompt:"A student plots a line chart of the monthly rent of 30 different apartments, all measured this month.",
+ parts:[
+  {q:"Part A: Is a line chart the right choice?",options:["No","Yes"],answer:0},
+  {q:"Part B: Why?",options:["Line charts are for time series, and this is cross sectional data","Line charts only work when there are fewer than 10 data points","Rent is categorical data, so it needs a pie chart","Line charts always need a log scale on the Y axis"],answer:0}],
+ explain:"Line charts connect points over time, and connecting 30 different apartments implies a trend that doesn't exist. This is cross sectional data (many units, one point in time), so a histogram or dot plot fits better."},
+{id:"s29",topic:C4,type:"twopart",
+ prompt:"Daily ATM customers: Q1 = 20, median = 24, Q3 = 36.",
+ parts:[
+  {q:"Part A: What is the midhinge?",options:["28","24","30","16"],answer:0},
+  {q:"Part B: What does it tell you about the shape?",options:["Midhinge is above the median, so the data are right skewed","Midhinge is above the median, so the data are left skewed","The data are symmetric because the median is inside the box","You can't tell anything about shape from quartiles"],answer:0}],
+ explain:"Midhinge = (Q1 + Q3) ÷ 2 = (20 + 36) ÷ 2 = 28. The median (24) sits left of the box's center (28), with a longer stretch to the right, so the data are right skewed. 16 is the IQR (Q3 − Q1), a measure of spread, not center."},
+{id:"s30",topic:C5,type:"twopart",
+ prompt:"Machine A makes 60% of a factory's parts, with a 2% defect rate. Machine B makes 40%, with a 5% defect rate. A part is found to be defective.",
+ parts:[
+  {q:"Part A: What is the probability it came from Machine B?",options:[".625",".40",".05",".375"],answer:0},
+  {q:"Part B: Why is the answer higher than Machine B's 40% share?",options:["B's much higher defect rate makes defective parts more likely to come from it, even though it makes fewer parts","Bayes' Theorem always increases the prior probability","Machine B actually makes more of the parts than Machine A","The two defect rates add up to 7%, which raises the answer"],answer:0}],
+ explain:"P(defect) = (.60)(.02) + (.40)(.05) = .012 + .020 = .032. P(B | defect) = .020 ÷ .032 = .625. The prior (40%) gets revised once you learn the part is defective, because B produces defects at more than twice A's rate. That's the hospital malpractice example from the slides in a new setting."},
+/* ---- round 7 ---- */
+{id:"s31",topic:C1,type:"mc",
+ prompt:"Which is NOT a trait of the ideal data analyst from Chapter 1?",
+ options:["Avoids asking for help so the work looks independent","Can deal with imperfect information","Knows their limitations","Focuses on the main problem"],answer:0,
+ explain:"The ideal analyst knows their limitations and is WILLING to ask for help. Other traits: technically current, communicates well, proactive, broad outlook, flexible, meets deadlines, professional integrity."},
+{id:"s32",topic:C2,type:"twopart",
+ prompt:"A survey uses a 6 point Likert scale from Strongly Disagree to Strongly Agree.",
+ parts:[
+  {q:"Part A: Does it have a neutral midpoint?",options:["No","Yes"],answer:0},
+  {q:"Part B: Why might a researcher choose this design?",options:["To force respondents to lean one way or the other","Because even numbered scales are required for interval data","Because 6 points makes it less coarse than any 7 point scale","To make the data nominal so it's easier to count"],answer:0}],
+ explain:"A neutral midpoint only exists with an odd number of points (usually 5 or 7). Using an even number removes it and forces people to lean. Coarseness = the number of scale points, so a 6 point scale is MORE coarse than a 7 point scale, not less."},
+{id:"s33",topic:C3,type:"mc",
+ prompt:"In a stem and leaf plot with stem unit = 10 and leaf unit = 1, the row reads: 4 | 1 3 3 8. What data values does it show?",
+ options:["41, 43, 43, 48","4, 1, 3, 3, 8","413, 438","4.1, 4.3, 4.3, 4.8"],answer:0,
+ explain:"The stem is the tens digit and each leaf is a ones digit. Stick the stem onto each leaf: 41, 43, 43, 48. That's the big advantage of stem and leaf plots: you can recover the raw data."},
+{id:"s34",topic:C4,type:"twopart",
+ prompt:"Stock A has a mean price of $50 with a standard deviation of $10. Stock B has a mean of $200 with a standard deviation of $30.",
+ parts:[
+  {q:"Part A: Which has more RELATIVE variability?",options:["Stock A","Stock B","They're equal"],answer:0},
+  {q:"Part B: Why?",options:["CV = SD ÷ mean; A is 20% and B is 15%","B's standard deviation is three times larger, so B varies more","A has the lower price, so it's riskier","You can't compare them because the means are different"],answer:0}],
+ explain:"Use the coefficient of variation when means differ. CV(A) = 10 ÷ 50 = 20%. CV(B) = 30 ÷ 200 = 15%. B moves more in dollars, but relative to its price, A is more variable. Option D is exactly why the CV exists."},
+{id:"s35",topic:C5,type:"twopart",
+ prompt:"A company makes 25% of all the wireless earbuds sold. Let S = a randomly chosen pair was made by this company.",
+ parts:[
+  {q:"Part A: What are the odds in favor of S?",options:["1 to 3","3 to 1","1 to 4","25 to 100"],answer:0},
+  {q:"Part B: A horse has 4 to 1 odds AGAINST winning. What's its implied probability of winning?",options:["20%","25%","80%","75%"],answer:0}],
+ explain:"Odds in favor = P(S) ÷ P(S′) = .25 ÷ .75 = 1/3, or 1 to 3. Odds against b to a means P = a ÷ (a + b) = 1 ÷ (4 + 1) = 20%. The 25% trap comes from dividing 1 by 4 instead of by 5."}
+];
+
+(function shuffleST(){
+  let seed = 5150277;
+  const rnd = ()=>{ seed = (seed*1103515245 + 12345) % 2147483648; return seed/2147483648; };
+  const mix = (opts, ans)=>{
+    const idx = opts.map((_,i)=>i);
+    for(let i=idx.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [idx[i],idx[j]]=[idx[j],idx[i]]; }
+    return [idx.map(i=>opts[i]), idx.indexOf(ans)];
+  };
+  ST.forEach(q=>{
+    if(q.type==="mc"){ [q.options,q.answer]=mix(q.options,q.answer); }
+    if(q.type==="twopart"){ q.parts.forEach(p=>{ [p.options,p.answer]=mix(p.options,p.answer); }); }
+  });
+})();
+
+const QUIZZES = [
+  {id:"stats-ch1-5-shared-v1", name:"Chapters 1 to 5 Practice", blurb:"35 questions, 7 per chapter, modeled on the chapter practice problems: classify the data, pick the sampling method, spot the pitfall, and work the calculations. Many questions have two parts, either the answer and the reason or two connected calculations. Each part is worth half a point. Have a calculator ready.", questions:ST}
+];
+
+function dataTable(t){
+  return el("div",{class:"twrap"}, el("table",{class:"dtable"},
+    el("thead",{}, el("tr",{}, t.head.map(h=>el("th",{},h)))),
+    el("tbody",{}, t.rows.map(r=>el("tr",{}, r.map((c,i)=> i===0?el("th",{scope:"row"},c):el("td",{},c)))))));
+}
+function quizById(id){ return QUIZZES.find(q=>q.id===id); }
+
+let QZ = QUIZZES[0];
+function QS(){ return QZ.questions; }
+
+const LS_HIST = "stats-shared-quiz-history-v1";
+function lsGet(k){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
+function progKey(id){ return "stats-quiz-progress-"+id; }
+
+function freshState(){ return {answers:{},conf:{},notes:{},time:{},flagged:[],current:0,startedAt:null}; }
+function loadState(id){ const s = lsGet(progKey(id)); return (s && s.startedAt) ? Object.assign(freshState(), s) : freshState(); }
+let S = loadState(QZ.id);
+let db = null, uid = null, view = "intro", reviewAttempt = null, history = [];
+let tick = null, qEnteredAt = null;
+
+/* ---------- grading ---------- */
+function grade(q, v){
+  if(q.type==="mc"){ return {pts: v===q.answer?1:0}; }
+  if(q.type==="multi"){
+    const a = (v||[]).slice().sort().join(","), b = q.answers.slice().sort().join(",");
+    return {pts: a===b?1:0};
+  }
+  if(q.type==="number"){
+    const n = parseFloat(String(v||"").replace(/[^0-9.\-]/g,""));
+    return {pts: (!isNaN(n) && Math.abs(n-q.answer)<=q.tol)?1:0};
+  }
+  if(q.type==="match"){
+    const got = q.items.filter((it,i)=> v && v[i]===it.a).length;
+    return {pts: got/q.items.length, got, of:q.items.length};
+  }
+  if(q.type==="twopart"){
+    const got = q.parts.filter((p,i)=> v && v[i]===p.answer).length;
+    return {pts: got/q.parts.length, got, of:q.parts.length};
+  }
+}
+function isAnswered(q){
+  const v = S.answers[q.id];
+  if(v===undefined||v===null) return false;
+  if(q.type==="multi") return v.length>0;
+  if(q.type==="number") return String(v).trim()!=="";
+  if(q.type==="match") return q.items.every((_,i)=>v[i]);
+  if(q.type==="twopart") return q.parts.every((_,i)=>v[i]!==undefined && v[i]!==null);
+  return true;
+}
+function readable(q, v){
+  if(v===undefined||v===null||(Array.isArray(v)&&!v.length)) return "(no answer)";
+  if(q.type==="mc") return q.options[v];
+  if(q.type==="multi") return v.map(i=>q.options[i]).join(" | ");
+  if(q.type==="number") return String(v)+" "+q.unit;
+  if(q.type==="match") return q.items.map((it,i)=>it.t+" → "+(v[i]||"(blank)")).join(" | ");
+  if(q.type==="twopart") return q.parts.map((p,i)=>p.q+" "+(v[i]!=null&&v[i]!==undefined?p.options[v[i]]:"(blank)")).join(" | ");
+}
+function correctText(q){
+  if(q.type==="mc") return q.options[q.answer];
+  if(q.type==="multi") return q.answers.map(i=>q.options[i]).join(" | ");
+  if(q.type==="number") return q.answer+" "+q.unit;
+  if(q.type==="match") return q.items.map(it=>it.t+" → "+it.a).join(" | ");
+  if(q.type==="twopart") return q.parts.map(p=>p.q+" "+p.options[p.answer]).join(" | ");
+}
+
+/* ---------- timing ---------- */
+function bankTime(){
+  if(qEnteredAt!==null && view==="quiz"){
+    const q = QS()[S.current];
+    S.time[q.id] = (S.time[q.id]||0) + Math.round((Date.now()-qEnteredAt)/1000);
+  }
+  qEnteredAt = Date.now();
+}
+function fmt(sec){ const m=Math.floor(sec/60), s=sec%60; return m+":"+String(s).padStart(2,"0"); }
+function startTick(){
+  stopTick();
+  tick = setInterval(()=>{
+    if(view==="quiz" && S.startedAt){ document.getElementById("timer").textContent = "Time " + fmt(Math.floor((Date.now()-S.startedAt)/1000)); }
+  },1000);
+}
+function stopTick(){ if(tick) clearInterval(tick); tick=null; }
+function persist(){ lsSet(progKey(QZ.id), S); }
+
+/* ---------- helpers ---------- */
+function el(tag, attrs, ...kids){
+  const e = document.createElement(tag);
+  if(attrs) for(const [k,v] of Object.entries(attrs)){
+    if(k==="class") e.className=v;
+    else if(k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if(v===true) e.setAttribute(k,"");
+    else if(v!==false && v!=null) e.setAttribute(k,v);
+  }
+  for(const k of kids.flat()){ if(k==null) continue; e.append(k.nodeType?k:document.createTextNode(String(k))); }
+  return e;
+}
+const app = document.getElementById("app");
+
+/* ---------- views ---------- */
+function setMeta(){
+  document.getElementById("metaInfo").textContent =
+    view==="quiz" ? QZ.name+", "+QS().length+" questions" :
+    view==="results" && reviewAttempt ? (quizById(reviewAttempt.quizId)||{name:"Quiz"}).name+" results" : "";
+}
+function render(){
+  app.innerHTML="";
+  document.getElementById("timer").textContent="";
+  setMeta();
+  if(view==="intro") renderIntro();
+  else if(view==="quiz") renderQuiz();
+  else if(view==="results") renderResults(reviewAttempt);
+}
+
+function renderIntro(){
+  const card = el("div",{class:"card intro"},
+    el("p",{class:"prompt"},"Mark how sure you are on every question, and use the \"my thinking\" box to note how you set up a problem. After you submit, you'll see your score by chapter and a worked explanation for every question, including why the trap answers are wrong."));;
+  app.append(card);
+  QUIZZES.forEach((qz,idx)=>{
+    const st = loadState(qz.id);
+    const resume = st.startedAt && Object.keys(st.answers).length>0;
+    const taken = history.filter(a=>a.quizId===qz.id).length;
+    app.append(el("div",{class:"card",style:"margin-top:14px"},
+      el("div",{class:"qhead"}, el("span",{class:"num"}, qz.name),
+        el("span",{class:"pts"}, qz.questions.length+" questions"+(taken?", taken "+taken+"x":""))),
+      el("p",{style:"margin:0 0 6px;max-width:68ch"}, qz.blurb),
+      el("div",{class:"btnrow"}, el("span",{}),
+        el("div",{style:"display:flex;gap:10px;flex-wrap:wrap"},
+          resume ? el("button",{class:"btn ghost",onclick:()=>{ QZ=qz; S=freshState(); lsDel(progKey(qz.id)); begin(); }},"Start over") : null,
+          el("button",{class:"btn primary",onclick:()=>{ QZ=qz; S=loadState(qz.id); begin(); }}, resume?"Resume "+qz.name:"Start "+qz.name)))));
+  });
+  app.append(historyBlock());
+}
+
+function begin(){
+  if(!S.startedAt) S.startedAt = Date.now();
+  view="quiz"; qEnteredAt=Date.now(); persist(); render(); startTick();
+}
+function go(i){
+  bankTime();
+  S.current = Math.max(0, Math.min(QS().length-1, i));
+  persist(); render();
+  window.scrollTo({top:0});
+}
+function renderQuiz(){
+  const q = QS()[S.current];
+  const layout = el("div",{class:"layout"});
+  layout.append(navGrid(false), questionCard(q));
+  app.append(layout);
+  document.getElementById("timer").textContent = "Time " + fmt(Math.floor((Date.now()-S.startedAt)/1000));
+}
+
+function navGrid(graded, attempt){
+  const list = graded ? attempt.responses : QS();
+  const answeredCount = graded ? 0 : QS().filter(isAnswered).length;
+  const g = el("div",{class:"grid",role:"list"});
+  list.forEach((item,i)=>{
+    let cls = "";
+    if(graded){ cls = item.points===1?"ok":(item.points>0?"part":"bad"); }
+    else{
+      if(isAnswered(item)) cls+=" answered";
+      if(i===S.current) cls+=" current";
+      if(S.flagged.includes(item.id)) cls+=" flagged";
+    }
+    g.append(el("button",{class:cls,"aria-label":"Question "+(i+1),onclick:()=>{
+      if(graded){ const t=document.getElementById("r"+i); if(t) t.scrollIntoView({behavior:"smooth",block:"start"}); }
+      else go(i);
+    }}, i+1));
+  });
+  const aside = el("aside",{class:"nav"},
+    el("h2",{}, graded ? "Results" : answeredCount+" of "+QS().length+" answered"), g);
+  if(!graded){
+    aside.append(el("div",{class:"legend"},
+      el("div",{},el("span",{style:"background:var(--blue-soft);border-color:var(--blue)"}),"Answered"),
+      el("div",{},el("span",{style:"background:var(--red);border-color:var(--red);border-radius:50%"}),"Flagged")));
+    aside.append(el("div",{class:"navbtns"}, el("button",{class:"btn primary",onclick:askSubmit},"Submit quiz")));
+  }else{
+    aside.append(el("div",{class:"legend"},
+      el("div",{},el("span",{style:"background:var(--green-soft);border-color:var(--green)"}),"Correct"),
+      el("div",{},el("span",{style:"background:var(--amber-soft);border-color:var(--amber)"}),"Partly right"),
+      el("div",{},el("span",{style:"background:var(--red-soft);border-color:var(--red)"}),"Missed")));
+  }
+  return aside;
+}
+
+function questionCard(q){
+  const i = S.current;
+  const flagged = S.flagged.includes(q.id);
+  const card = el("section",{class:"card","aria-labelledby":"qn"});
+  card.append(el("div",{class:"qhead"},
+    el("span",{class:"num",id:"qn"},"Question "+(i+1)),
+    el("span",{class:"pts"},"1 pt")));
+  card.append(el("p",{class:"prompt"}, q.prompt));
+  if(q.table) card.append(dataTable(q.table));
+  const hint = {mc:"Choose one.",multi:"Select every answer that is correct.",match:"Pick an answer for each row. Choices can be used more than once.",number:"Type a number.",twopart:"Answer both parts. Each part is worth half a point."}[q.type];
+  card.append(el("p",{class:"hint"},hint));
+
+  const v = S.answers[q.id];
+  if(q.type==="mc"||q.type==="multi"){
+    const box = el("div",{class:"opts",role:q.type==="mc"?"radiogroup":"group"});
+    q.options.forEach((o,oi)=>{
+      const checked = q.type==="mc" ? v===oi : (v||[]).includes(oi);
+      const input = el("input",{type:q.type==="mc"?"radio":"checkbox",name:q.id,checked});
+      input.addEventListener("change",()=>{
+        if(q.type==="mc") S.answers[q.id]=oi;
+        else{
+          const cur = new Set(S.answers[q.id]||[]);
+          input.checked?cur.add(oi):cur.delete(oi);
+          S.answers[q.id]=[...cur].sort((a,b)=>a-b);
+        }
+        persist(); render();
+      });
+      box.append(el("label",{class:"opt"+(checked?" sel":"")}, input, el("span",{},o)));
+    });
+    card.append(box);
+  }else if(q.type==="match"){
+    const box = el("div",{class:"match"});
+    q.items.forEach((it,ii)=>{
+      const sel = el("select",{"aria-label":it.t});
+      sel.append(el("option",{value:""},"Choose..."));
+      q.choices.forEach(c=> sel.append(el("option",{value:c, selected:(v&&v[ii]===c)}, c)));
+      sel.addEventListener("change",()=>{
+        const cur = Object.assign({}, S.answers[q.id]||{});
+        cur[ii]=sel.value||undefined;
+        S.answers[q.id]=cur; persist();
+        renderNavOnly();
+      });
+      box.append(el("div",{class:"mrow"}, el("span",{},it.t), sel));
+    });
+    card.append(box);
+  }else if(q.type==="twopart"){
+    q.parts.forEach((p,pi)=>{
+      card.append(el("p",{style:"font-weight:700;margin:16px 0 4px"}, p.q));
+      const box = el("div",{class:"opts",role:"radiogroup","aria-label":p.q});
+      p.options.forEach((o,oi)=>{
+        const checked = !!v && v[pi]===oi;
+        const input = el("input",{type:"radio",name:q.id+"-"+pi,checked});
+        input.addEventListener("change",()=>{
+          const cur = Object.assign({}, S.answers[q.id]||{}); cur[pi]=oi;
+          S.answers[q.id]=cur; persist(); render();
+        });
+        box.append(el("label",{class:"opt"+(checked?" sel":"")}, input, el("span",{},o)));
+      });
+      card.append(box);
+    });
+  }else if(q.type==="number"){
+    const inp = el("input",{type:"text",class:"num",inputmode:"decimal",value:v||"","aria-label":"Your answer"});
+    inp.addEventListener("input",()=>{ S.answers[q.id]=inp.value; persist(); renderNavOnly(); });
+    card.append(el("div",{style:"display:flex;align-items:center;gap:8px;margin:12px 0"}, inp, el("span",{},q.unit)));
+  }
+
+  const extras = el("div",{class:"extras"});
+  const conf = el("div",{class:"conf"}, el("span",{class:"lbl"},"How sure are you?"));
+  [["sure","Sure"],["unsure","Somewhat"],["guess","Guessing"]].forEach(([k,lab])=>{
+    conf.append(el("button",{class:"pill","aria-pressed":S.conf[q.id]===k?"true":"false",onclick:()=>{ S.conf[q.id]=k; persist(); render(); }},lab));
+  });
+  extras.append(conf);
+  const ta = el("textarea",{id:"note-"+q.id,placeholder:"Optional. Why did you pick this, or what were you torn between?"});
+  ta.value = S.notes[q.id]||"";
+  ta.addEventListener("input",()=>{ S.notes[q.id]=ta.value; persist(); });
+  extras.append(el("div",{}, el("label",{class:"small",for:"note-"+q.id},"My thinking"), ta));
+  card.append(extras);
+
+  card.append(el("div",{class:"btnrow"},
+    el("button",{class:"btn ghost",onclick:()=>{
+      const f=new Set(S.flagged); flagged?f.delete(q.id):f.add(q.id); S.flagged=[...f]; persist(); render();
+    }}, flagged?"Remove flag":"Flag for review"),
+    el("div",{style:"display:flex;gap:10px"},
+      el("button",{class:"btn",disabled:i===0,onclick:()=>go(i-1)},"Previous"),
+      i<QS().length-1
+        ? el("button",{class:"btn primary",onclick:()=>go(i+1)},"Next")
+        : el("button",{class:"btn primary",onclick:askSubmit},"Submit quiz"))));
+  return card;
+}
+function renderNavOnly(){
+  const old = app.querySelector("aside.nav");
+  if(old) old.replaceWith(navGrid(false));
+}
+
+/* ---------- submit ---------- */
+const dlg = document.getElementById("confirmDlg");
+function askSubmit(){
+  const un = QS().map((q,i)=>isAnswered(q)?null:i+1).filter(Boolean);
+  const nc = QS().map((q,i)=>S.conf[q.id]?null:i+1).filter(Boolean);
+  const fl = QS().map((q,i)=>S.flagged.includes(q.id)?i+1:null).filter(Boolean);
+  let t = un.length ? "Unanswered: "+un.join(", ")+". " : "All questions answered. ";
+  if(nc.length) t += "No confidence marked on: "+nc.join(", ")+". ";
+  if(fl.length) t += "Flagged: "+fl.join(", ")+". ";
+  t += "You can't change answers after submitting.";
+  document.getElementById("confirmText").textContent = t;
+  if(dlg.showModal) dlg.showModal(); else if(confirm(t)) submit();
+}
+document.getElementById("cancelSubmit").onclick = ()=>dlg.close();
+document.getElementById("doSubmit").onclick = ()=>{ dlg.close(); submit(); };
+
+async function submit(){
+  bankTime(); stopTick();
+  const now = Date.now();
+  const responses = QS().map((q,i)=>{
+    const v = S.answers[q.id];
+    const g = grade(q,v);
+    return {
+      n:i+1, id:q.id, topic:q.topic, type:q.type, prompt:q.prompt,
+      yourAnswer: readable(q,v), correctAnswer: correctText(q),
+      points: Math.round(g.pts*100)/100,
+      itemsRight: g.got!==undefined ? g.got+"/"+g.of : null,
+      confidence: S.conf[q.id]||"not marked",
+      thinking: (S.notes[q.id]||"").trim(),
+      seconds: S.time[q.id]||0,
+      flagged: S.flagged.includes(q.id),
+      raw: v===undefined?null:v
+    };
+  });
+  const total = responses.reduce((s,r)=>s+r.points,0);
+  const byTopic = {};
+  TOPIC_ORDER.forEach(t=>{ if(responses.some(r=>r.topic===t)) byTopic[t]={points:0,possible:0}; });
+  responses.forEach(r=>{ byTopic[r.topic].points+=r.points; byTopic[r.topic].possible+=1; });
+  Object.values(byTopic).forEach(o=>o.points=Math.round(o.points*100)/100);
+  const attempt = {
+    quizId:QZ.id, attemptId:"a"+now, submittedAt:new Date(now).toISOString(),
+    durationSeconds: Math.round((now-S.startedAt)/1000),
+    score: Math.round(total*100)/100, possible: QS().length,
+    percent: Math.round(total/QS().length*1000)/10,
+    byTopic, responses,
+    luckyGuesses: responses.filter(r=>r.points===1 && r.confidence==="guess").map(r=>r.n),
+    confidentMisses: responses.filter(r=>r.points<1 && r.confidence==="sure").map(r=>r.n),
+    savedTo: (db && uid) ? "claude" : "device"
+  };
+  let savedRemote = false;
+  if(db && uid){
+    const ref = db.collection("data/users/"+uid).doc(attempt.attemptId);
+    try{ await ref.set(attempt); savedRemote = true; }
+    catch(e){
+      try{ await new Promise(r=>setTimeout(r,600+Math.random()*600)); await ref.set(attempt); savedRemote=true; }catch(e2){}
+    }
+  }
+  attempt.savedTo = savedRemote ? "claude" : "device";
+  const h = lsGet(LS_HIST)||[]; h.unshift(attempt); lsSet(LS_HIST, h.slice(0,20));
+  history = mergeHistory(history, [attempt]);
+  S = freshState(); lsDel(progKey(QZ.id));
+  reviewAttempt = attempt; view="results"; render(); window.scrollTo({top:0});
+}
+
+/* ---------- results ---------- */
+function renderResults(a){
+  const qz = quizById(a.quizId) || QUIZZES[0];
+  const layout = el("div",{class:"layout"});
+  layout.append(navGrid(true,a));
+  const main = el("div",{});
+  const card = el("section",{class:"card"});
+  card.append(el("div",{class:"result-hero"},
+    el("div",{class:"score"}, a.score+" / "+a.possible, el("small",{}, a.percent+"%  in "+fmt(a.durationSeconds))),
+    el("div",{},
+      el("div",{}, qz.name+", "+new Date(a.submittedAt).toLocaleString()),
+      el("div",{class:"savestate"}, a.savedTo==="claude"
+        ? "Saved. Your past attempts are listed on the start page."
+        : "Saved on this device only."))));
+
+  const cm = a.confidentMisses||[], lg = a.luckyGuesses||[];
+  card.append(el("div",{class:"callouts"},
+    el("div",{class:"callout"}, el("h3",{},"Sure, but wrong"),
+      el("p",{}, cm.length ? "Questions "+cm.join(", ")+". These are the most dangerous gaps because you won't think to review them." : "None. When you felt sure, you were right.")),
+    el("div",{class:"callout"}, el("h3",{},"Right, but guessing"),
+      el("p",{}, lg.length ? "Questions "+lg.join(", ")+". You got the point, but you don't own this yet." : "None. No lucky points this time."))));
+
+  const tb = el("table",{class:"topics"},
+    el("thead",{}, el("tr",{}, el("th",{},"Topic"), el("th",{},""), el("th",{class:"n"},"Score"))));
+  const body = el("tbody",{});
+  Object.entries(a.byTopic).forEach(([t,o])=>{
+    const pct = o.possible? o.points/o.possible*100 : 0;
+    body.append(el("tr",{}, el("td",{},t),
+      el("td",{style:"width:30%"}, el("div",{class:"bar"}, el("i",{style:"width:"+pct+"%"}))),
+      el("td",{class:"n"}, o.points+" / "+o.possible)));
+  });
+  tb.append(body); card.append(tb);
+  card.append(el("div",{class:"btnrow"},
+    el("button",{class:"btn ghost",onclick:()=>{ view="intro"; reviewAttempt=null; render(); }},"Back to start"),
+    el("button",{class:"btn primary",onclick:()=>{ QZ=qz; S=freshState(); lsDel(progKey(qz.id)); begin(); }},"Retake "+qz.name)));
+  main.append(card);
+
+  const rv = el("div",{class:"review"});
+  a.responses.forEach((r,i)=>{
+    const q = qz.questions.find(x=>x.id===r.id);
+    const cls = r.points===1?"ok":(r.points>0?"part":"bad");
+    const item = el("article",{class:"ritem "+cls,id:"r"+i},
+      el("h4",{}, el("span",{},"Question "+r.n+"  ", el("span",{class:r.points===1?"mark-ok":"mark-bad"}, r.points===1?"Correct":(r.points>0?"Partly right ("+r.itemsRight+")":"Missed"))),
+        el("span",{class:"tag"}, r.topic)),
+      el("p",{class:"rp"}, r.prompt));
+    if(q && q.table) item.append(dataTable(q.table));
+    if(q && q.type==="twopart" && r.raw){
+      q.parts.forEach((p,pi)=>{
+        const mi = r.raw[pi]; const ok = mi===p.answer;
+        item.append(el("div",{class:"ans"}, el("span",{class:ok?"mark-ok":"mark-bad"}, ok?"✓ ":"✗ "), p.q+" ",
+          el("strong",{}, mi!=null?p.options[mi]:"(blank)"), ok?"":el("span",{}, "  (correct: "+p.options[p.answer]+")")));
+      });
+    }else if(q && q.type==="match" && r.raw){
+      q.items.forEach((it,ii)=>{
+        const mine = r.raw[ii]||"(blank)"; const ok = mine===it.a;
+        item.append(el("div",{class:"ans"}, el("span",{class:ok?"mark-ok":"mark-bad"}, ok?"✓ ":"✗ "), it.t+": ",
+          el("strong",{}, mine), ok?"":el("span",{}, "  (correct: "+it.a+")")));
+      });
+    }else{
+      item.append(el("div",{class:"ans"}, el("b",{},"Your answer"), r.yourAnswer));
+      if(r.points<1) item.append(el("div",{class:"ans"}, el("b",{},"Correct"), r.correctAnswer));
+    }
+    item.append(el("div",{class:"ans",style:"color:var(--muted)"}, "Confidence: "+r.confidence+"   Time: "+fmt(r.seconds)));
+    if(r.thinking) item.append(el("div",{class:"ans",style:"color:var(--muted)"}, "Your thinking: "+r.thinking));
+    if(q) item.append(el("div",{class:"why"}, q.explain));
+    rv.append(item);
+  });
+  main.append(rv);
+  layout.append(main);
+  app.append(layout);
+}
+
+function historyBlock(){
+  const wrap = el("section",{class:"history"});
+  wrap.append(el("h2",{},"Past attempts"));
+  if(!history.length){ wrap.append(el("p",{style:"color:var(--muted)"},"No attempts yet. Your first one will show up here.")); return wrap; }
+  history.forEach(a=>{
+    const qz = quizById(a.quizId);
+    wrap.append(el("div",{class:"hrow"},
+      el("span",{}, (qz?qz.name:"Quiz")+", "+new Date(a.submittedAt).toLocaleString()),
+      el("span",{}, el("strong",{}, a.score+" / "+a.possible), "  ("+a.percent+"%)"),
+      el("button",{class:"btn ghost",onclick:()=>{ reviewAttempt=a; view="results"; render(); window.scrollTo({top:0}); }},"Review")));
+  });
+  return wrap;
+}
+function mergeHistory(a,b){
+  const m = new Map(); [...a,...b].forEach(x=>{ if(x && x.attemptId) m.set(x.attemptId,x); });
+  return [...m.values()].sort((x,y)=>y.submittedAt.localeCompare(x.submittedAt));
+}
+
+/* ---------- boot ---------- */
+history = mergeHistory([], lsGet(LS_HIST)||[]);
+render();
+
+(async ()=>{
+  try{
+    if(!window.claude || !window.claude.use) return;
+    const [d,u] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    if(!d || !u) return;
+    const id = await u.id();
+    if(!id) return;
+    db = d; uid = id;
+    const snap = await db.collection("data/users/"+uid).get();
+    const remote = snap.docs.map(x=>x.data()).filter(x=>x && quizById(x.quizId));
+    remote.forEach(x=>{ x.savedTo="claude"; });
+    history = mergeHistory(history, remote);
+    if(view==="intro") render();
+  }catch(e){ /* device storage only */ }
+})();
+</script>
+</body>
+</html>
